@@ -1,0 +1,206 @@
+---
+params:
+  title: title
+  id: trex_id
+  genome: genome
+  annot: annot
+date: today
+
+
+title:  "`r params$title`"
+author: <a href="https://trex.biotech.cornell.edu/"> Transcriptional Regulation & Expression Facility </a>
+format: 
+  html:
+    standalone: true
+    embed-resources: true
+    toc: true
+    toc-location: left
+    toc-title: "Summary"
+    grid: 
+      content-mode: full
+      sidebar-width: 350px
+      body-width: 1600px
+---
+
+------------------------------------------------------------------------
+
+```{=html}
+<style type="text/css">
+  .quarto-title-banner {
+    height: 100px; /* Adjust the height value as needed */
+  }
+.main-container {
+  max-width: 90% !important;
+  margin: auto;
+}
+.quarto-title-meta-contents a:hover {
+  color: #c44900; 
+}
+.trex-logo:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s ease-in-out;
+  transform-origin: right center;
+}
+
+
+
+
+
+</style>
+```
+[![](https://raw.githubusercontent.com/bixBeta/atac/main/img/trex-mini.png){.trex-logo fig-align="right"}](https://trex.biotech.cornell.edu/)
+
+<hr>
+
+## UMAPS
+
+```{r , fig.show='hold', echo=F, results='asis'}
+
+# Begin the tabset panel
+cat('::: {.panel-tabset}\n')
+
+p1 <- list.files(".", pattern = "UMAP", full.names = T)
+
+res = c("0.8", "1","1.5", "2")
+for (element in res) {
+  
+  cat(paste0('## ', (strsplit(basename(p1[grep(pattern = paste0(element, ".png"), x = p1)]), split = ".png")[[1]][1]  |> strsplit(split = "-"))[[1]][5] , '\n\n'))
+  
+  cat(paste0("![](", p1[grep(pattern = paste0(element, ".png"), x = p1)] , ")", "{width=1800}" ))
+  # Your content for each tab goes here
+  #knitr::include_graphics(p1[element])
+  # For example, you can include images, text, or other R outputs
+  cat('\n\n')
+}
+
+
+
+
+# cat(paste0('## UMAP Clusters ', '\n\n'))
+# 
+# cat(paste0("![](", p1[grep("UMAP1", p1)] , ")", "{width=2080}" ))
+# 
+# cat('\n\n')
+# 
+# cat(paste0('## UMAP Samples ', '\n\n'))
+# 
+# cat(paste0("![](", p1[grep("UMAP2", p1)] , ")", "{width=2080}" ))
+# 
+# cat('\n\n')
+
+# End the tabset panel
+cat(':::\n')
+
+```
+
+
+## Violin Plots
+
+```{r , fig.show='hold', echo=F, results='asis'}
+
+# Begin the tabset panel
+cat('::: {.panel-tabset}\n')
+
+cat(paste0('## Pre-filter ', '\n\n'))
+
+    cat('::: {.panel-tabset}\n')
+    
+    cat(paste0('## byENID ', '\n\n'))
+    p1 <- list.files(".", pattern = "VLN_PLOT", full.names = T)
+  
+    cat(paste0("![](", p1[grep("PRE_FILTER", p1)][1] , ")", "{width=1000}" ))
+    cat('\n\n')
+
+    
+    cat(paste0('## bySample ', '\n\n'))
+    cat(paste0("![](", p1[grep("PRE_FILTER", p1)][2] , ")", "{width=1000}" ))
+    cat('\n\n')
+
+    cat(':::\n')
+
+
+cat('\n\n')
+
+cat(paste0('## Post-filter ', '\n\n'))
+
+    cat('::: {.panel-tabset}\n')
+    
+    cat(paste0('## byENID ', '\n\n'))
+    p1 <- list.files(".", pattern = "VLN_PLOT", full.names = T)
+  
+    cat(paste0("![](", p1[grep("POST_FILTER", p1)][1] , ")", "{width=1000}" ))
+    cat('\n\n')
+
+    
+    cat(paste0('## bySample ', '\n\n'))
+    cat(paste0("![](", p1[grep("POST_FILTER", p1)][2] , ")", "{width=1000}" ))
+    cat('\n\n')
+
+    cat(':::\n')
+
+cat(':::\n')
+
+```
+
+
+
+## NCell Proportions
+```{r , fig.show='hold', echo=F, results='asis'}
+
+# Begin the tabset panel
+cat('::: {.panel-tabset}\n')
+
+p1 <- list.files(".", pattern = "_res_", full.names = T)
+
+# Loop over the elements and create a tab for each
+
+res = c("0.8", "1","1.5", "2")
+for (element in res) {
+  
+  cat(paste0('## Res: ', (strsplit(basename(p1[grep(pattern = paste0(element, ".png"), x = p1)]), split = ".png")[[1]][1]  |> strsplit(split = "_"))[[1]][5] , '\n\n'))
+  
+  cat(paste0("![](", p1[grep(pattern = paste0(element, ".png"), x = p1)] , ")", "{width=1480}" ))
+  # Your content for each tab goes here
+  #knitr::include_graphics(p1[element])
+  # For example, you can include images, text, or other R outputs
+  cat('\n\n')
+}
+
+# End the tabset panel
+cat(':::\n')
+
+```
+
+
+
+
+## Pseudobulk PCA's
+
+```{r , fig.show='hold', echo=F, results='asis'}
+
+# Begin the tabset panel
+cat('::: {.panel-tabset}\n')
+
+p1 <- list.files(".", pattern = "PCA_PLOTS", full.names = T)
+
+# Loop over the elements and create a tab for each
+
+res = c("1","1.5")
+for (element in res) {
+  
+  cat(paste0('## ', (strsplit(basename(p1[grep(pattern = paste0("PCA_PLOTS_res", element, "_"), x = p1)]), split = ".png")[[1]][1]  |> strsplit(split = "_"))[[1]][3] , '\n\n'))
+  
+  cat(paste0("![](", p1[grep(pattern = paste0("PCA_PLOTS_res", element, "_"), x = p1)] , ")", "{width=2480}" ))
+  # Your content for each tab goes here
+  #knitr::include_graphics(p1[element])
+  # For example, you can include images, text, or other R outputs
+  cat('\n\n')
+}
+
+# End the tabset panel
+cat(':::\n')
+
+```
+
+
+
