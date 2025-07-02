@@ -1,37 +1,75 @@
-library(tibble)
 library(dplyr)
+library(tibble)
 library(networkD3)
-library(tidyr)
-library(reshape2)
-library(viridis)
-sv4.raw.t.meta = sv4.raw.t@meta.data
-v4t.obj.added.clusts.meta <- readRDS("/home/MAIN2/February_03_CITEseq_fixed_AB_annot/SEURAT_OBJECT_V4_T_Added_Clusters/v4t.obj.added.clusts.meta.RDS")
+library(htmlwidgets)
+# Import ----
+meta = readRDS("data/adt_harmony_meta.RDS")
 
+# Clean UP ----
 
-v4raw.v.v4t = as.matrix(table(sv4.raw.t.meta$SCT_snn_res.0.6, v4t.obj.added.clusts.meta$SCT_snn_res.0.8))
-colnames(v4raw.v.v4t) = paste0("res0.8_T_cluster", colnames(v4raw.v.v4t))
-rownames(v4raw.v.v4t) = paste0("res0.6_SV4_Cluster", rownames(v4raw.v.v4t))
+meta = meta |> rownames_to_column("bc") |> select(bc, matches("harmony"))
+gex_res = 0.8
+adt_res = 0.2
 
-getSankey <- function(matrix, floor){
-  
-  x = as.data.frame(matrix) 
-  colnames(x) = c("source", "target", "value")
-  
-  x = x %>% filter(value > floor)
-  
-  nodes = as.data.frame(c(as.character(x$source), as.character(x$target)) %>% unique())
-  
-  colnames(nodes) = "name"
-  
-  x$IDsource=match(x$source, nodes$name)-1 
-  x$IDtarget=match(x$target, nodes$name)-1
-  
-  y = sankeyNetwork(Links = x, Nodes = nodes,
-                    Source = "IDsource", Target = "IDtarget",
-                    Value = "value", NodeID = "name", 
-                    sinksRight=FALSE, nodeWidth=40, fontSize=12, nodePadding=20, iterations = 0)
-  
-  return(y)
-  
+getSankey <- function(gex_res, adt_res, floor = 10) {
+  prefixg = paste0("GEX_")
+  prefixa = paste0("ADT_")
+  message(paste0(prefixg, gex_res))
+  message(paste0(prefixa, adt_res))
+
+  meta.df = meta |>
+    select(
+      bc,
+      paste0("harmony_clusters_res", gex_res),
+      paste0("harmony_decont_clusters_res", adt_res)
+    )
+  meta.df[[2]] <- as.character(meta.df[[2]])
+  meta.df[[3]] <- as.character(meta.df[[3]])
+
+  matrix = as.matrix(table(meta.df[[2]], meta.df[[3]]))
+
+  colnames(matrix) <- paste0(prefixa, "_", colnames(matrix))
+  rownames(matrix) <- paste0(prefixg, "_", rownames(matrix))
+
+  df = as.data.frame(matrix)
+
+  colnames(df) <- c("source", "target", "value")
+
+  df = df %>% filter(value > floor)
+  df = df |> arrange(desc(value))
+
+  nodes <- data.frame(
+    name = c(as.character(df$source), as.character(df$target)) %>% unique()
+  )
+  df$IDsource = match(df$source, nodes$name) - 1
+  df$IDtarget = match(df$target, nodes$name) - 1
+  ColourScal = 'd3.scaleOrdinal() .range(["#FDE725FF","#B4DE2CFF","#6DCD59FF","#35B779FF","#1F9E89FF","#26828EFF","#31688EFF","#3E4A89FF","#482878FF","#440154FF"])'
+
+  p = # Make the Network
+    sankeyNetwork(
+      Links = df,
+      Nodes = nodes,
+      Source = "IDsource",
+      Target = "IDtarget",
+      Value = "value",
+      NodeID = "name",
+      sinksRight = FALSE,
+      colourScale = ColourScal,
+      nodeWidth = 50,
+      fontSize = 13,
+      nodePadding = 20
+    )
+
+  return(p)
 }
-getSankey(matrix = v4raw.v.v4t, floor = 10)
+
+
+g8a2 = getSankey(gex_res = 0.8, adt_res = 0.2)
+g1a3 = getSankey(gex_res = 1, adt_res = 0.3)
+g15a4 = getSankey(gex_res = 1.5, adt_res = 0.4)
+g2a5 = getSankey(gex_res = 2, adt_res = 0.5)
+
+saveWidget(g8a2, file = "figures/gex_0.8_adt_0.2.html", selfcontained = TRUE)
+saveWidget(g1a3, file = "figures/gex_1_adt_0.3.html", selfcontained = TRUE)
+saveWidget(g15a4, file = "figures/gex_1.5_adt_0.4.html", selfcontained = TRUE)
+saveWidget(g2a5, file = "figures/gex_2_adt_0.5.html", selfcontained = TRUE)
